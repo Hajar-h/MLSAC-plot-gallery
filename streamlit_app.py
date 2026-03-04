@@ -1,6 +1,8 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+from matplotlib.animation import FuncAnimation
 
 st.set_page_config(page_title="MLSAC Plot Gallery", layout="wide")
 
@@ -13,7 +15,7 @@ tab1, tab2 = st.tabs(["📤 Submit Your Plot", "🖼️ View Gallery"])
 
 # --- TAB 1: SUBMISSION ---
 with tab1:
-    st.header("Create your Plor")
+    st.header("Create your Plot: 🖌️🎨")
     name = st.text_input("Your Name / Autograph", placeholder="e.g., your name (dep. name)")
     user_code = st.text_area("Paste your Python/Matplotlib code here", height=200, 
                              placeholder="import matplotlib.pyplot as plt\nfig, ax = plt.subplots()...")
@@ -24,7 +26,7 @@ with tab1:
             try:
                 # Use a local namespace for execution safety
                 local_vars = {}
-                exec(user_code, {"plt": plt, "pd": pd}, local_vars)
+                exec(user_code, {"plt": plt, "pd": pd, "np": np}, local_vars)
                 fig = plt.gcf()
                 
                 # Save to our session gallery
