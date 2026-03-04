@@ -2,7 +2,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from matplotlib.animation import FuncAnimation
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 st.set_page_config(page_title="MLSAC Plot Gallery", layout="wide")
 
@@ -15,27 +16,33 @@ tab1, tab2 = st.tabs(["📤 Submit Your Plot", "🖼️ View Gallery"])
 
 # --- TAB 1: SUBMISSION ---
 with tab1:
-    st.header("Create your Plot: 🖌️🎨")
-    name = st.text_input("Your Name / Autograph", placeholder="e.g., your name (dep. name)")
-    user_code = st.text_area("Paste your Python/Matplotlib code here", height=200, 
-                             placeholder="import matplotlib.pyplot as plt\nfig, ax = plt.subplots()...")
+    st.header("Share your creation")
+    name = st.text_input("Your Name / Autograph")
+    user_code = st.text_area("Paste your Python code here", height=250)
 
     if st.button("Submit to Gallery"):
         if name and user_code:
-            # We create the plot immediately to 'test' it and save the figure
             try:
-                # Use a local namespace for execution safety
-                local_vars = {}
-                exec(user_code, {"plt": plt, "pd": pd, "np": np}, local_vars)
+                # We create a shared dictionary for both globals and locals
+                namespace = {
+                    "plt": plt, 
+                    "pd": pd, 
+                    "np": np, 
+                    "arabic_reshaper": arabic_reshaper,
+                    "get_display": get_display
+                }
+                
+                # We execute the code within that single namespace
+                exec(user_code, namespace, namespace) 
+                
                 fig = plt.gcf()
                 
-                # Save to our session gallery
                 st.session_state.gallery_data.append({
                     "name": name,
                     "code": user_code,
                     "fig": fig
                 })
-                st.success("Successfully added to the gallery!")
+                st.success("Successfully added!")
             except Exception as e:
                 st.error(f"Error in code: {e}")
 
